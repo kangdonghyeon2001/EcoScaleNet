@@ -54,10 +54,10 @@ class EcoScaleNet(nn.Module):
         self.layer3 = self._make_layer(block, 128, 256, 2, kernel_size=3, stride=2, dropout=0.2)
         self.layer4 = self._make_layer(block, 256, 512, 2, kernel_size=3, stride=2, dropout=0.2)
 
-        self.os1 = EcoScaleBlock(self.kernel_size_list[0], 64, 32, 32)
-        self.os2 = EcoScaleBlock(self.kernel_size_list[1], 128, 64, 64)
-        self.os3 = EcoScaleBlock(self.kernel_size_list[2], 256, 128, 128)
-        self.os4 = EcoScaleBlock(self.kernel_size_list[3], 512, 256, 256)
+        self.block1 = EcoScaleBlock(self.kernel_size_list[0], 64, 32, 32)
+        self.block2 = EcoScaleBlock(self.kernel_size_list[1], 128, 64, 64)
+        self.block3 = EcoScaleBlock(self.kernel_size_list[2], 256, 128, 128)
+        self.block4 = EcoScaleBlock(self.kernel_size_list[3], 512, 256, 256)
   
         self.avgpool = nn.AdaptiveAvgPool1d(output_size=(1))
         
@@ -85,13 +85,16 @@ class EcoScaleNet(nn.Module):
         x = self.max_pool(x)
 
         x = self.layer1(x)
-        x = self.os1(x)
+        x = self.block1(x)
+
         x = self.layer2(x)
-        x = self.os2(x)
+        x = self.block2(x)
+
         x = self.layer3(x)
-        x = self.os3(x)
+        x = self.block3(x)
+        
         x = self.layer4(x)
-        x = self.os4(x)
+        x = self.block4(x)
 
         x = self.avgpool(x)
         x = x.squeeze(2)
